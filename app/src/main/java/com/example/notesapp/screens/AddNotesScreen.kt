@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -19,13 +18,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.notesapp.viewModel.NoteEvent
+import com.example.notesapp.viewModel.NoteState
 
 @Preview
 @Composable
-fun AddNotesScreen () {
+fun AddNotesScreen (
+    state : NoteState,
+    navController: NavController,
+    onEvent: (NoteEvent) -> Unit,
+) {
     Scaffold (
         floatingActionButton = {
-            FloatingActionButton(onClick = { /*TODO*/ }) {
+            FloatingActionButton(onClick = {
+                if (state.id.value == 0) {
+                    onEvent(
+                        NoteEvent.SaveNote(
+                            title = state.title.value,
+                            description = state.description.value
+                        )
+                    )
+                } else {
+                    onEvent(
+                        NoteEvent.UpdateNote(
+                            id = state.id.value,
+                            title = state.title.value,
+                            description = state.description.value
+                        )
+                    )
+                }
+
+                navController.popBackStack()
+            }) {
                 Icon(imageVector = Icons.Rounded.Check, contentDescription = null )
             }
         }
@@ -35,8 +60,8 @@ fun AddNotesScreen () {
                     .padding(it)
                     .fillMaxSize()
             ) {
-                TextField(value = "", onValueChange = {
-
+                TextField(value = state.title.value, onValueChange = {
+                    state.title.value = it
                 },
                 modifier = Modifier
                     .padding(16.dp)
@@ -50,8 +75,8 @@ fun AddNotesScreen () {
                 )
                 )
 
-                TextField(value = "", onValueChange = {
-
+                TextField(value = state.description.value, onValueChange = {
+                    state.description.value = it
                 },
                     modifier = Modifier
                         .padding(16.dp)
